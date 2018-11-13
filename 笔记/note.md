@@ -1,8 +1,66 @@
 ### Java基础
 #### 并发与多线程
 #### 虚拟机
+
+
+#### io和socket
+> [inputstream read()方法返回值解释](https://blog.csdn.net/zhaomengszu/article/details/54562056)
+> [socket基础](https://www.cnblogs.com/rocomp/p/4790340.html)
+
+* io类图
+![io类图](./pics/stream_class.png)
 #### nio
-#### socket
+> [nio基础](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20IO.md#%E4%B8%83nio)
+* 所谓编码就是把字符转换为字节，解码就是把字节重新组合成字符
+* nio缓冲区变量
+	1. limit：所有对Buffer读写操作都会以limit变量的值作为上限。
+	2. position：代表对缓冲区进行读写时，当前游标的位置。
+	3. capacity：代表缓冲区的最大容量（一般新建一个缓冲区的时候，limit的值和capacity的值默认是相等的）。
+
+	
+* clear()方法**用于写模式**，其作用为清空Buffer中的内容，所谓清空是指写上限与Buffer的真实容量相同，即limit==capacity,同时将当前写位置置为最前端下标为0处。
+
+* rewind()在读写模式下都可用，它单纯的将当前位置置0，同时取消mark标记，仅此而已；也就是说写模式下limit仍保持与Buffer容量相同，只是重头写而已；读模式下limit仍然与rewind()调用之前相同，也就是为flip()调用之前写模式下的position的最后位置，flip()调用后此位置变为了读模式的limit位置，即越界位置
+
+* flip()函数的作用是将**写模式转变为读模式**，即将写模式下的Buffer中内容的最后位置变为读模式下的limit位置，作为读越界位置，同时将当前读位置置为0，表示转换后重头开始读，同时再消除写模式下的mark标记
+
+* NIO 实现了 IO 多路复用中的 Reactor 模型，一个线程 Thread 使用一个**选择器 Selector** 通过轮询的方式去监听多个通道 Channel 上的事件，从而让一个线程就可以处理多个事件。**只有套接字 Channel 才能配置为非阻塞，而 FileChannel 不能，为 FileChannel 配置非阻塞也没有意义。**
+* 将通道注册到选择器上
+```
+ServerSocketChannel ssChannel = ServerSocketChannel.open();
+ssChannel.configureBlocking(false);
+ssChannel.register(selector, SelectionKey.OP_ACCEPT);
+```
+> 
+
+* NIO 与普通 I/O 的区别主要有以下两点：
+	1. NIO 是非阻塞的；
+	2. NIO 面向块，I/O 面向流。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Spring
 #### spring boot
@@ -91,6 +149,15 @@
 * ![观察者模式](./designpattern/observer.png)
 * 观察者模式的本质：触发联动
 
+##### 命令模式
+* 命令模式将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求或记录请求日志，以及支持可撤销的操作。
+* ![命令模式](./designpattern/command.png)
+* 命令模式的本质：封装请求
+
+##### 迭代器模式
+* 提供一种方法顺序访问一个聚合对象中的各个元素，而又不需暴露该对象的内部表示
+![迭代器模式](./designpattern/iterator.png)
+* 迭代器模式的本质：控制访问聚合对象中的元素
 
 #### 结构型
 ##### 外观设计模式
@@ -129,6 +196,7 @@
 ### shell
 
 ### vue
+* [MVVM](https://www.liaoxuefeng.com/wiki/001434446689867b27157e896e74d51a89c25cc8b43bdb3000/001475449022563a6591e6373324d1abd93e0e3fa04397f000)
 
 ### js
 * ES6异步
