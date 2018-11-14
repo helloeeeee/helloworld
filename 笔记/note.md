@@ -1,8 +1,74 @@
 ### Java基础
 #### 并发与多线程
+> https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#semaphore
+
+##### 中断
+* 通过调用一个线程的 interrupt() 来中断该线程，如果该线程处于阻塞、限期等待或者无限期等待状态，那么就会抛出 InterruptedException，从而提前结束该线程。但是**不能中断 I/O 阻塞和 synchronized 锁阻塞**。
+* 如果一个线程的 run() 方法执行一个无限循环，并且没有执行 sleep() 等会抛出 InterruptedException 的操作，那么调用线程的 interrupt() 方法就无法使线程提前结束。
+但是调用 interrupt() 方法会设置线程的中断标记，此时调用 interrupted() 方法会返回 true。因此可以在循环体中使用 interrupted() 方法来判断线程是否处于中断状态，从而提前结束线程。
+
+* 调用 Executor 的 shutdown() 方法会等待线程都执行完毕之后再关闭，但是如果调用的是 shutdownNow() 方法，则相当于调用每个线程的 interrupt() 方法。
+
+##### 锁
+* ReentrantLock和synchronized的区别
+	1. **锁的实现**：synchronized是jvm实现的，而ReentrantLock是jdk实现
+	2. **性能**： 新版本 Java 对 synchronized 进行了很多优化，例如自旋锁等，synchronized 与 ReentrantLock 大致相同。
+	3. **等待可中断**：当持有锁的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情。ReentrantLock 以使用thread.interript()中断，而 synchronized 不行。
+	4. **公平锁**:synchronized 中的锁是非公平的，ReentrantLock 默认情况下也是非公平的，但是也可以是公平的。
+	5. **锁绑定多个条件**:一个 ReentrantLock 可以同时绑定多个 Condition 对象。
+> 除非需要使用 ReentrantLock 的高级功能，否则优先使用 synchronized。这是因为 synchronized 是 JVM 实现的一种锁机制，JVM 原生地支持它，而 ReentrantLock 不是所有的 JDK 版本都支持。并且使用 synchronized 不用担心没有释放锁而导致死锁问题，因为 JVM 会确保锁的释放。
+
+* wait() 和 sleep() 的区别
+	1. wait() 是 Object 的方法，而 sleep() 是 Thread 的静态方法；
+	2. wait() 会释放锁，sleep() 不会。
+
+##### 并发容器
+###### BlockingQueue
+java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
+1. **FIFO 队列 **:LinkedBlockingQueue、ArrayBlockingQueue（固定长度）
+2. **优先级队列**:PriorityBlockingQueue
+* 提供了阻塞的**take()** 和**put()**方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置。
+
+##### forkjoin
+* 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
+* ForkJoin 使用 ForkJoinPool 来启动，它是一个特殊的线程池，线程数量取决于 CPU 核数。
+* ForkJoinPool 实现了工作窃取算法来提高 CPU 的利用率。每个线程都维护了一个双端队列，用来存储需要执行的任务。工作窃取算法允许空闲的线程从其它线程的双端队列中窃取一个任务来执行。窃取的任务必须是最晚的任务，避免和队列所属线程发生竞争。
+
+##### java内存模型
+![java内存模型](./pics/ram_model.png)
+
+>[内存模型三大特性](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7)
+
+###### 先行发生原则
+1.	**单一线程原则**：在一个线程内，在程序前面的操作先行发生于后面的操作
+2.	**管程锁定原则**：一个unlock操作先行发生与后面对同一个锁的lock操作。
+3.	**volatile变量规则**：对一个volatile变量的写操作先行发生于后面对着变量的读操作。
+4.	**线程启动原则**：Thread对象的start()方法调用先行发生于此线程的每一个动作。
+5.	**线程加入规则**：Thread对象的结束先行发生于join()方法发挥
+6.	**线程中断原则**：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生，可以通过interrupted()方法检测到是否有中断发生。
+7.	**对象终结规则**：一个对象的初始化完成（构造函数执行结束）先行发生于它的finalize()方法的开始
+8.	**传递性**：如果操作A先行发生于操作B，操作B先行发生与操作C，那么操作A先行发生与操作C。
+
+###### 锁优化
+> https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#%E5%8D%81%E4%BA%8C%E9%94%81%E4%BC%98%E5%8C%96
+
+1. 自旋锁
+2. 锁消除
+3. 锁粗化
+4. 轻量级锁
+> 轻量级锁是相对于传统的重量级锁而言，它使用 CAS 操作来避免重量级锁使用互斥量的开销。对于绝大部分的锁，在整个同步周期内都是不存在竞争的，因此也就不需要都使用互斥量进行同步，可以先采用 CAS 操作进行同步，如果 CAS 失败了再改用互斥量进行同步。
+当尝试获取一个锁对象时，如果锁对象标记为 0 01，说明锁对象的锁未锁定（unlocked）状态。此时虚拟机在当前线程的虚拟机栈中创建 Lock Record，然后使用 CAS 操作将对象的 Mark Word 更新为 Lock Record 指针。如果 CAS 操作成功了，那么线程就获取了该对象上的锁，并且对象的 Mark Word 的锁标记变为 00，表示该对象处于轻量级锁状态。
+如果 CAS 操作失败了，虚拟机首先会检查对象的 Mark Word 是否指向当前线程的虚拟机栈，如果是的话说明当前线程已经拥有了这个锁对象，那就可以直接进入同步块继续执行，否则说明这个锁对象已经被其他线程线程抢占了。如果有两条以上的线程争用同一个锁，那轻量级锁就不再有效，要膨胀为重量级锁。
+5. 偏向锁
+> 偏向锁的思想是偏向于让第一个获取锁对象的线程，这个线程在之后获取该锁就不再需要进行同步操作，甚至连 CAS 操作也不再需要。
+当锁对象第一次被线程获得的时候，进入偏向状态，标记为 1 01。同时使用 CAS 操作将线程 ID 记录到 Mark Word 中，如果 CAS 操作成功，这个线程以后每次进入这个锁相关的同步块就不需要再进行任何同步操作。
+当有另外一个线程去尝试获取这个锁对象时，偏向状态就宣告结束，此时撤销偏向（Revoke Bias）后恢复到未锁定状态或者轻量级锁状态。
+
+##### 多线程开发的良好实践
+> https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#%E5%8D%81%E4%B8%89%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%BC%80%E5%8F%91%E8%89%AF%E5%A5%BD%E7%9A%84%E5%AE%9E%E8%B7%B5
+
+
 #### 虚拟机
-
-
 #### io和socket
 > [inputstream read()方法返回值解释](https://blog.csdn.net/zhaomengszu/article/details/54562056)
 > [socket基础](https://www.cnblogs.com/rocomp/p/4790340.html)
@@ -36,30 +102,6 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 * NIO 与普通 I/O 的区别主要有以下两点：
 	1. NIO 是非阻塞的；
 	2. NIO 面向块，I/O 面向流。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ### Spring
@@ -159,6 +201,11 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![迭代器模式](./designpattern/iterator.png)
 * 迭代器模式的本质：控制访问聚合对象中的元素
 
+##### 备忘录模式
+* 在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态。这样以后就就可将对象恢复到原先保存的状态。
+![备忘录模式](./designpattern/memento.png)
+* 备忘录模式的本质：保存和恢复内部状态。
+
 #### 结构型
 ##### 外观设计模式
 * 外观模式为子系统中的一组接口提供一个一致的界面，Facade模式定义了一个高层接口，这个接口使的这一子系统更加容易使用。
@@ -186,6 +233,11 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![代理模式](./designpattern/proxy.png)
 * 代理模式的本质：控制对象访问。
 
+##### 组合模式
+* 将对象组合成树型结构以表示“部分-整体”的层次结构。组合模式使的用户对单个对象和组合对象的使用具有一致性。
+![组合模式](./designpattern/composite.png)
+* 组合对象的本质：统一叶子对象和组合对象
+
 
 ### 项目
 
@@ -211,4 +263,9 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 消息中间件 搜索引擎 分布式数据库
 
 JIT即时编译器
+
+jdk1.7动态语言支持
+
+netty
+
 
