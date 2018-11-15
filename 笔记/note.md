@@ -29,6 +29,53 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 2. **优先级队列**:PriorityBlockingQueue
 * 提供了阻塞的**take()** 和**put()**方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置。
 
+###### copyOnWriteArrayList
+> http://www.cnblogs.com/skywang12345/p/3498483.html
+
+* CopyOnWriteArrayList相当于线程安全的ArrayList，它实现了List接口
+
+* copyOnWriteArrayList使用的是**ReentrantLock**
+
+* **CopyOnWriteArrayList的“动态数组”机制**:它内部有个“volatile数组”(array)来保持数据。在“添加/修改/删除”数据时，都会新建一个数组，并将更新后的数据拷贝到新建的数组中，最后再将该数组赋值给“volatile数组”。这就是它叫做CopyOnWriteArrayList的原因！CopyOnWriteArrayList就是通过这种方式实现的动态数组；不过正由于它在“添加/修改/删除”数据时，都会新建数组，所以涉及到修改数据的操作，CopyOnWriteArrayList效率很
+低；但是单单只是进行遍历查找的话，效率比较高。
+* **CopyOnWriteArrayList的“线程安全”机制**:通过volatile和互斥锁来实现
+	1. CopyOnWriteArrayList是通过“volatile数组”来保存数据的。一个线程读取volatile数组时，总能看到其它线程对该volatile变量最后的写入；就这样，通过volatile提供了“读取到的数据总是最新的”这个机制的
+	2.  CopyOnWriteArrayList通过互斥锁来保护数据。在“添加/修改/删除”数据时，会先“获取互斥锁”，再修改完毕之后，先将数据更新到“volatile数组”中，然后再“释放互斥锁”；这样，就达到了保护数据的目的。
+
+* copyOnWrite的iterator()会返回COWIterator对象。COWIterator实现了ListIterator接口.COWIterator不支持修改元素的操作。例如，对于remove(),set(),add()等操作，COWIterator都会抛出异常！
+另外，需要提到的一点是，CopyOnWriteArrayList返回迭代器不会抛出ConcurrentModificationException异常，即它不是fail-fast机制的！
+
+###### CopyOnWriteArraySet
+* CopyOnWriteArraySet是线程安全的无序集合，可以将它理解为线程安全的HashSet。
+* CopyOnWriteArraySet和HashSet虽然都继承于共同的父类AbstractSet；但是，**HashSet是通过“散列表(HashMap)”实现的**，而**CopyOnWriteArraySet则是通过“动态数组(CopyOnWriteArrayList)”实现的，并不是散列表**。
+* CopyOnWriteArraySet的“线程安全”机制，和CopyOnWriteArrayList一样，是通过**volatile和互斥锁**来实现的。CopyOnWriteArraySet包含CopyOnWriteArrayList对象，它是通过CopyOnWriteArrayList实现的。而CopyOnWriteArrayList本质是个动态数组队列，
+所以CopyOnWriteArraySet相当于通过通过动态数组实现的“集合”！ CopyOnWriteArrayList中允许有重复的元素；但是，CopyOnWriteArraySet是一个集合，所以它不能有重复集合。因此，CopyOnWriteArrayList额外提供了addIfAbsent()和addAllAbsent()这两个添加元素的API，通过这些API来添加元素时，只有当元素不存在时才执行添加操作！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##### forkjoin
 * 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
 * ForkJoin 使用 ForkJoinPool 来启动，它是一个特殊的线程池，线程数量取决于 CPU 核数。
@@ -160,6 +207,8 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![原因模式](./designpattern/prototype.png)
 * 原型模式的本质：克隆生成对象
 
+
+
 #### 行为型
 ##### 状态模式
 * 状态设计模式允许一个对象在其内部状态改变时改变它的行为。对象看起来似乎修改了它的类。
@@ -206,6 +255,11 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![备忘录模式](./designpattern/memento.png)
 * 备忘录模式的本质：保存和恢复内部状态。
 
+##### 访问者模式
+* 访问者模式表示一个作用与某对象结构中的各元素的操作。使你可以在不改变元素的类的前提下定义作用于这些元素的新操作。
+![访问者模式](./designpattern/visit.png)
+* 访问者模式的本质：回调实现
+
 #### 结构型
 ##### 外观设计模式
 * 外观模式为子系统中的一组接口提供一个一致的界面，Facade模式定义了一个高层接口，这个接口使的这一子系统更加容易使用。
@@ -238,6 +292,10 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![组合模式](./designpattern/composite.png)
 * 组合对象的本质：统一叶子对象和组合对象
 
+##### 桥接模式
+* 将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+![桥接模式](./designpattern/bridge.png)
+* 桥接模式的本质：分离抽象和实现
 
 ### 项目
 
@@ -268,4 +326,5 @@ jdk1.7动态语言支持
 
 netty
 
-
+分布式锁的实现。
+分布式session存储解决方案。
