@@ -1,4 +1,12 @@
 ### Java基础
+#### 集合框架
+##### java8中的hashmap
+* Java8 对 HashMap 进行了一些修改，最大的不同就是利用了红黑树，所以其由 数组+链表+红黑树 组成。
+* 引入红黑树的原因是：链表查询的时间复杂度为O(n)，为了降低这部分开销，Java8当链表元素超过了8个之后，会将链表转换为红黑树，因为红黑树查找的时间复杂度为O(logN)
+* ava7 中使用 Entry 来代表每个 HashMap 中的数据节点，Java8 中使用 Node，基本没有区别，都是 key，value，hash 和 next 这四个属性，不过，Node 只能用于链表的情况，红黑树的情况需要使用 TreeNode。
+* 我们根据数组元素中，第一个节点数据类型是 Node 还是 TreeNode 来判断该位置下是链表还是红黑树的。
+
+
 #### 并发与多线程
 > https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#semaphore
 
@@ -51,11 +59,24 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 * CopyOnWriteArraySet的“线程安全”机制，和CopyOnWriteArrayList一样，是通过**volatile和互斥锁**来实现的。CopyOnWriteArraySet包含CopyOnWriteArrayList对象，它是通过CopyOnWriteArrayList实现的。而CopyOnWriteArrayList本质是个动态数组队列，
 所以CopyOnWriteArraySet相当于通过通过动态数组实现的“集合”！ CopyOnWriteArrayList中允许有重复的元素；但是，CopyOnWriteArraySet是一个集合，所以它不能有重复集合。因此，CopyOnWriteArrayList额外提供了addIfAbsent()和addAllAbsent()这两个添加元素的API，通过这些API来添加元素时，只有当元素不存在时才执行添加操作！
 
+###### ConcurrentHashMap
+* 　ConcurrentHashMap是线程安全的哈希表，它是通过“**锁分段**”来保证线程安全的。ConcurrentHashMap将哈希表分成许多片段(Segment)，每一个片段除了保存哈希表之外，本质上也是一个“可重入的互斥锁”(ReentrantLock)。多线程对同一个片段的访问，是互斥的；但是，对于不同片段的访问，却是可以同步进行的。
+* 　原理和数据结构
+	* ConcurrentHashMap继承于AbstractMap抽象类。
+	* Segment是ConcurrentHashMap中的内部类，它就是ConcurrentHashMap中的“锁分段”对应的存储结构。ConcurrentHashMap与Segment是组合关系，1个ConcurrentHashMap对象包含若干个Segment对象。在代码中，这表现为ConcurrentHashMap类中存在“Segment数组”成员。
+	* Segment类继承于ReentrantLock类，所以**Segment本质上是一个可重入的互斥锁**。
+	* HashEntry也是ConcurrentHashMap的内部类，是单向链表节点，存储着key-value键值对。Segment与HashEntry是组合关系，Segment类中存在“HashEntry数组”成员，“HashEntry数组”中的每个HashEntry就是一个单向链表。
+* concurrencyLevel：并行级别、并发数、Segment 数，怎么翻译不重要，理解它。默认是 16，也就是说 ConcurrentHashMap 有 16 个 Segments，所以理论上，这个时候，最多可以同时支持 16 个线程并发写，只要它们的操作分别分布在不同的 Segment 上。这个值可以在初始化的时候设置为其他值，但是一旦初始化以后，它是不可以扩容的。
+* **jdk 1.8 取消了基于 Segment 的分段锁思想，改用 CAS + synchronized 控制并发操作**，在某些方面提升了性能。并且追随 1.8 版本的 HashMap 底层实现，使用数组+链表+红黑树进行数据存储。
 
-
-
-
-
+##### ConcurrentSkipListMap
+* ConcurrentSkipListMap可以看做是线程安全的TreeMap，它们虽然都是有序的哈希表。但是ConcurrentSkipListMap是通过跳表实现的，TreeMap是通过红黑树实现的。
+* 跳表(Skip List)，它是平衡树的一种替代的数据结构，但是和红黑树不相同的是，跳表对于树的平衡的实现是基于一种随机化的算法的，这样也就是说跳表的插入和删除的工作是比较简单的。
+* ConcurrentSkipListMap的数据结构
+	1. ConcurrentSkipListMap继承于AbstractMap类
+	2.  Index是ConcurrentSkipListMap的内部类，它与“跳表中的索引相对应”。HeadIndex继承于Index，ConcurrentSkipListMap中含有一个HeadIndex的对象head，head是“跳表的表头”。
+	3.   Index是跳表中的索引，它包含“右索引的指针(right)”，“下索引的指针(down)”和“哈希表节点node”。node是Node的对象，Node也是ConcurrentSkipListMap中的内部类。
+* ConcurrentSkipListMap线程安全的原因是，在一个死循环中判断当前获取值与之前获取值是否相等，不相等就跳出循环重新获取。
 
 
 
@@ -178,15 +199,23 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![工厂方法模式](./designpattern/factory_method.png)
 * 工厂方法模式的主要功能是让父类在不知道具体实现的情况下，完成自身的功能调用而具体的实现延迟到子类来实现。
 * 工厂方法模式的本质：延迟到子类来选择实现。
+* JDK
+	* java.util.Calendar
+	* java.util.ResourceBundle
+	* java.text.NumberFormat
 
 ##### 抽象工厂模式
 * 抽象工厂模式提供一个创建一系列相关或者相互依赖对象的接口，而无需指定它们具体的类。
 ![抽象工厂模式](./designpattern/abstract_factory.png)
 * 抽象工厂模式的核心：选择产品簇的实现
-
+* JDK
+	* javax.xml.parsers.DocumentBuilderFactory
+	* javax.xml.transform.TransformerFactory
+	* javax.xml.xpath.XPathFactory
 
 ##### 单例模式
 * 单例模式保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+![单例模式](./designpattern/singleton.png)
 * 创建单例模式的方法
 	1. 懒汉式
 	2. 饿汉式
@@ -196,6 +225,9 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 	6. 双重校验锁
 	7. 枚举类型
 * 单例模式的本质：控制实例数目
+* JDK
+	* java.lang.Runtime#getRuntime()
+	* java.lang.System#getSecurityManager()
 
 ##### 生成器模式
 * 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
@@ -328,3 +360,5 @@ netty
 
 分布式锁的实现。
 分布式session存储解决方案。
+
+
