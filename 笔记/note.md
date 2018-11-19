@@ -78,24 +78,43 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 	3.   Index是跳表中的索引，它包含“右索引的指针(right)”，“下索引的指针(down)”和“哈希表节点node”。node是Node的对象，Node也是ConcurrentSkipListMap中的内部类。
 * ConcurrentSkipListMap线程安全的原因是，在一个死循环中判断当前获取值与之前获取值是否相等，不相等就跳出循环重新获取。
 
+##### ConcurrentSkipListSet
+* ConcurrentSkipListSet可以看做是线程安全的TreeSet,他们都是线程安全的。但是，ConcurrentSkipListSet是通过ConcurrentSkipListMap实现的，TreeSet是通过TreeMap实现的
+* 原理及数据结构：
+	1. ConcurrentSkipListSet继承于AbstractSet。因此，它本质上是一个集合
+	2. ConcurrentSkipListSet实现了NavigableSet接口。因此，ConcurrentSkipListSet是一个有序的集合。
+	3. ConcurrentSkipListSet是通过ConcurrentSkipListMap实现的。它包含一个ConcurrentNavigableMap对象m，而m对象实际上是ConcurrentNavigableMap的实现类ConcurrentSkipListMap的实例。ConcurrentSkipListMap中的元素是key-value键值对；而ConcurrentSkipListSet是集合，它只用到了ConcurrentSkipListMap中的key
 
+##### ArrayBlockingQueue
+* ArrayBlockingQueue是数组实现的**线程安全的有界的阻塞队列**(FIFO)
+* 原理与数据结构
+	1. ArrayBlockingQueue继承于AbstractQueue，并且它实现了BlockingQueue接口
+	2. ArrayBlockingQueue内部是通过Object[]数组保存数据的，也就是说ArrayBlockingQueue本质上是通过数组实现的。ArrayBlockingQueue的大小，即数组的容量是创建ArrayBlockingQueue时指定的。
+	3. ArrayBlockingQueue与ReentrantLock是组合关系，ArrayBlockingQueue中包含一个ReentrantLock对象(lock)。ArrayBlockingQueue就是根据该互斥锁实现“多线程对竞争资源的互斥访问”。ArrayBlockingQueue默认使用非公平锁。
+	4. ArrayBlockingQueue与Condition是组合关系，ArrayBlockingQueue中包含两个Condition对象(notEmpty和notFull)。而且，Condition又依赖于ArrayBlockingQueue而存在，通过Condition可以实现对ArrayBlockingQueue的更精确的访问 -- (01)若某线程(线程A)要取数据时，数组正好为空，则该线程会执行notEmpty.await()进行等待；当其它某个线程(线程B)向数组中插入了数据之后，会调用notEmpty.signal()唤醒“notEmpty上的等待线程”。此时，线程A会被唤醒从而得以继续运行。(02)若某线程(线程H)要插入数据时，数组已满，则该线程会它执行notFull.await()进行等待；当其它某个线程(线程I)取出数据之后，会调用notFull.signal()唤醒“notFull上的等待线程”。此时，线程H就会被唤醒从而得以继续运行。
 
+##### LinkedBlockingQueue
+* LinkedBlockingQueue是一个单向链表实现的阻塞队列。该队列按 FIFO（先进先出）排序元素。此外，LinkedBlockingQueue还是可选容量的(防止过度膨胀)，即可以指定队列的容量。如果不指定，默认容量大小等于Integer.MAX_VALUE。
+* 原理和数据结构
+	1.  LinkedBlockingQueue继承于AbstractQueue，它本质上是一个FIFO(先进先出)的队列。
+	2.  LinkedBlockingQueue实现了BlockingQueue接口，它支持多线程并发。当多线程竞争同一个资源时，某线程获取到该资源之后，其它线程需要阻塞等待。
+	3.  LinkedBlockingQueue是通过单链表实现的。putLock是插入锁，takeLock是取出锁；notEmpty是“非空条件”，notFull是“未满条件”。通过它们对链表进行并发控制。LinkedBlockingQueue在实现“多线程对竞争资源的互斥访问”时，对于“插入”和“取出(删除)”操作分别使用了不同的锁。对于插入操作，通过“插入锁putLock”进行同步；对于取出操作，通过“取出锁takeLock”进行同步。此外，插入锁putLock和“非满条件notFull”相关联，取出锁takeLock和“非空条件notEmpty”相关联。通过notFull和notEmpty更细腻的控制锁。
 
+##### LinkedBlockingDeque
+* LinkedBlockingDeque是双向链表实现的双向并发阻塞队列。该阻塞队列同时支持FIFO和FILO两种操作方式，即可以从队列的头和尾同时操作(插入/删除)；并且，该阻塞队列是支持线程安全。此外，LinkedBlockingDeque还是可选容量的(防止过度膨胀)，即可以指定队列的容量。如果不指定，默认容量大小等于Integer.MAX_VALUE。
+* 原理及数据结构
+	1. LinkedBlockingDeque继承于AbstractQueue，它本质上是一个支持FIFO和FILO的双向的队列。
+	2. LinkedBlockingDeque实现了BlockingDeque接口，它支持多线程并发。当多线程竞争同一个资源时，某线程获取到该资源之后，其它线程需要阻塞等待。
+	3. LinkedBlockingDeque是通过双向链表实现的。
+	4. lock是控制对LinkedBlockingDeque的互斥锁，当多个线程竞争同时访问LinkedBlockingDeque时，某线程获取到了互斥锁lock，其它线程则需要阻塞等待，直到该线程释放lock，其它线程才有机会获取lock从而获取cpu执行权。
+	5. notEmpty和notFull分别是“非空条件”和“未满条件”。通过它们能够更加细腻进行并发控制。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+##### ConcurrentLinkedQueue
+* ConcurrentLinkedQueue是线程安全的队列,它是一个基于链接节点的无界线程安全队列，按照 FIFO（先进先出）原则对元素进行排序。队列元素中不可以放置null元素（内部实现的特殊节点除外）。
+* 原理和数据结构
+	1. ConcurrentLinkedQueue继承于AbstractQueue。
+	2. ConcurrentLinkedQueue内部是通过链表来实现的。它同时包含链表的头节点head和尾节点tail。
+	3. ConcurrentLinkedQueue的链表Node中的next的类型是volatile，而且链表数据item的类型也是volatile。
 
 ##### forkjoin
 * 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
@@ -233,12 +252,17 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 * 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 * ![生成器模式](./designpattern/build.png)
 * 生成器模式的本质：分离整体构建算法和部件构造。
+* JDK
+	* java.lang.StringBuilder
+	* java.lang.StringBuffer
+	* java.nio.ByteBuffer
 
 ##### 原型模式
 * 用原型实例指定创建对象的种类，并通过拷贝这些原型创建新的对象。
 ![原因模式](./designpattern/prototype.png)
 * 原型模式的本质：克隆生成对象
-
+* JDK
+	* java.lang.Object#clone()
 
 
 #### 行为型
@@ -251,11 +275,20 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 * 定义一系列算法，把他们一个个封装起来，并且使它们可相互替换。策略模式使得算法可独立于使用它的客户而变化。
 ![策略模式](./designpattern/strategy.png)
 * 策略模式的本质：分离算法，选择实现
+* JDK
+	* java.util.Comparator#compare()
+	* javax.servlet.http.HttpServlet
+	* javax.servlet.Filter#doFilter()
 
 ##### 模板设计模式
 * 模板方法定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使的子类可以不改变一个算法的结构即可重新定义该算法的某些特定步骤。
 ![模板方法模式](./designpattern/template_method.png)
 * 模板方法模式的本质：固定算法骨架
+* JDK
+	* java.util.Collections#sort() （也可以看做策略模式？）
+	* java.io.InputStream#skip() （？？？？？）
+	* java.io.InputStream#read() （？？？？？）
+	* java.util.AbstractList#indexOf() 
 
 ##### 责任链模式
 * 使多个对象都有机会处理请求，从而避免请求的发送者和请求者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，知道有一个对象处理它为止。
@@ -350,7 +383,7 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ### ...
 熟悉分布式、缓存、消息、搜索等机制，有分布式系统、集群架构设计和使用经验
 
-消息中间件 搜索引擎 分布式数据库
+消息中间件 搜索引擎 分布式数据库 
 
 JIT即时编译器
 
@@ -360,5 +393,3 @@ netty
 
 分布式锁的实现。
 分布式session存储解决方案。
-
-
