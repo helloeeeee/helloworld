@@ -1,4 +1,12 @@
 ### Java基础
+#### 集合框架
+##### java8中的hashmap
+* Java8 对 HashMap 进行了一些修改，最大的不同就是利用了红黑树，所以其由 数组+链表+红黑树 组成。
+* 引入红黑树的原因是：链表查询的时间复杂度为O(n)，为了降低这部分开销，Java8当链表元素超过了8个之后，会将链表转换为红黑树，因为红黑树查找的时间复杂度为O(logN)
+* ava7 中使用 Entry 来代表每个 HashMap 中的数据节点，Java8 中使用 Node，基本没有区别，都是 key，value，hash 和 next 这四个属性，不过，Node 只能用于链表的情况，红黑树的情况需要使用 TreeNode。
+* 我们根据数组元素中，第一个节点数据类型是 Node 还是 TreeNode 来判断该位置下是链表还是红黑树的。
+
+
 #### 并发与多线程
 > https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#semaphore
 
@@ -51,30 +59,62 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 * CopyOnWriteArraySet的“线程安全”机制，和CopyOnWriteArrayList一样，是通过**volatile和互斥锁**来实现的。CopyOnWriteArraySet包含CopyOnWriteArrayList对象，它是通过CopyOnWriteArrayList实现的。而CopyOnWriteArrayList本质是个动态数组队列，
 所以CopyOnWriteArraySet相当于通过通过动态数组实现的“集合”！ CopyOnWriteArrayList中允许有重复的元素；但是，CopyOnWriteArraySet是一个集合，所以它不能有重复集合。因此，CopyOnWriteArrayList额外提供了addIfAbsent()和addAllAbsent()这两个添加元素的API，通过这些API来添加元素时，只有当元素不存在时才执行添加操作！
 
+###### ConcurrentHashMap
+* 　ConcurrentHashMap是线程安全的哈希表，它是通过“**锁分段**”来保证线程安全的。ConcurrentHashMap将哈希表分成许多片段(Segment)，每一个片段除了保存哈希表之外，本质上也是一个“可重入的互斥锁”(ReentrantLock)。多线程对同一个片段的访问，是互斥的；但是，对于不同片段的访问，却是可以同步进行的。
+* 　原理和数据结构
+	* ConcurrentHashMap继承于AbstractMap抽象类。
+	* Segment是ConcurrentHashMap中的内部类，它就是ConcurrentHashMap中的“锁分段”对应的存储结构。ConcurrentHashMap与Segment是组合关系，1个ConcurrentHashMap对象包含若干个Segment对象。在代码中，这表现为ConcurrentHashMap类中存在“Segment数组”成员。
+	* Segment类继承于ReentrantLock类，所以**Segment本质上是一个可重入的互斥锁**。
+	* HashEntry也是ConcurrentHashMap的内部类，是单向链表节点，存储着key-value键值对。Segment与HashEntry是组合关系，Segment类中存在“HashEntry数组”成员，“HashEntry数组”中的每个HashEntry就是一个单向链表。
+* concurrencyLevel：并行级别、并发数、Segment 数，怎么翻译不重要，理解它。默认是 16，也就是说 ConcurrentHashMap 有 16 个 Segments，所以理论上，这个时候，最多可以同时支持 16 个线程并发写，只要它们的操作分别分布在不同的 Segment 上。这个值可以在初始化的时候设置为其他值，但是一旦初始化以后，它是不可以扩容的。
+* **jdk 1.8 取消了基于 Segment 的分段锁思想，改用 CAS + synchronized 控制并发操作**，在某些方面提升了性能。并且追随 1.8 版本的 HashMap 底层实现，使用数组+链表+红黑树进行数据存储。
 
+##### ConcurrentSkipListMap
+* ConcurrentSkipListMap可以看做是线程安全的TreeMap，它们虽然都是有序的哈希表。但是ConcurrentSkipListMap是通过跳表实现的，TreeMap是通过红黑树实现的。
+* 跳表(Skip List)，它是平衡树的一种替代的数据结构，但是和红黑树不相同的是，跳表对于树的平衡的实现是基于一种随机化的算法的，这样也就是说跳表的插入和删除的工作是比较简单的。
+* ConcurrentSkipListMap的数据结构
+	1. ConcurrentSkipListMap继承于AbstractMap类
+	2.  Index是ConcurrentSkipListMap的内部类，它与“跳表中的索引相对应”。HeadIndex继承于Index，ConcurrentSkipListMap中含有一个HeadIndex的对象head，head是“跳表的表头”。
+	3.   Index是跳表中的索引，它包含“右索引的指针(right)”，“下索引的指针(down)”和“哈希表节点node”。node是Node的对象，Node也是ConcurrentSkipListMap中的内部类。
+* ConcurrentSkipListMap线程安全的原因是，在一个死循环中判断当前获取值与之前获取值是否相等，不相等就跳出循环重新获取。
 
+##### ConcurrentSkipListSet
+* ConcurrentSkipListSet可以看做是线程安全的TreeSet,他们都是线程安全的。但是，ConcurrentSkipListSet是通过ConcurrentSkipListMap实现的，TreeSet是通过TreeMap实现的
+* 原理及数据结构：
+	1. ConcurrentSkipListSet继承于AbstractSet。因此，它本质上是一个集合
+	2. ConcurrentSkipListSet实现了NavigableSet接口。因此，ConcurrentSkipListSet是一个有序的集合。
+	3. ConcurrentSkipListSet是通过ConcurrentSkipListMap实现的。它包含一个ConcurrentNavigableMap对象m，而m对象实际上是ConcurrentNavigableMap的实现类ConcurrentSkipListMap的实例。ConcurrentSkipListMap中的元素是key-value键值对；而ConcurrentSkipListSet是集合，它只用到了ConcurrentSkipListMap中的key
 
+##### ArrayBlockingQueue
+* ArrayBlockingQueue是数组实现的**线程安全的有界的阻塞队列**(FIFO)
+* 原理与数据结构
+	1. ArrayBlockingQueue继承于AbstractQueue，并且它实现了BlockingQueue接口
+	2. ArrayBlockingQueue内部是通过Object[]数组保存数据的，也就是说ArrayBlockingQueue本质上是通过数组实现的。ArrayBlockingQueue的大小，即数组的容量是创建ArrayBlockingQueue时指定的。
+	3. ArrayBlockingQueue与ReentrantLock是组合关系，ArrayBlockingQueue中包含一个ReentrantLock对象(lock)。ArrayBlockingQueue就是根据该互斥锁实现“多线程对竞争资源的互斥访问”。ArrayBlockingQueue默认使用非公平锁。
+	4. ArrayBlockingQueue与Condition是组合关系，ArrayBlockingQueue中包含两个Condition对象(notEmpty和notFull)。而且，Condition又依赖于ArrayBlockingQueue而存在，通过Condition可以实现对ArrayBlockingQueue的更精确的访问 -- (01)若某线程(线程A)要取数据时，数组正好为空，则该线程会执行notEmpty.await()进行等待；当其它某个线程(线程B)向数组中插入了数据之后，会调用notEmpty.signal()唤醒“notEmpty上的等待线程”。此时，线程A会被唤醒从而得以继续运行。(02)若某线程(线程H)要插入数据时，数组已满，则该线程会它执行notFull.await()进行等待；当其它某个线程(线程I)取出数据之后，会调用notFull.signal()唤醒“notFull上的等待线程”。此时，线程H就会被唤醒从而得以继续运行。
 
+##### LinkedBlockingQueue
+* LinkedBlockingQueue是一个单向链表实现的阻塞队列。该队列按 FIFO（先进先出）排序元素。此外，LinkedBlockingQueue还是可选容量的(防止过度膨胀)，即可以指定队列的容量。如果不指定，默认容量大小等于Integer.MAX_VALUE。
+* 原理和数据结构
+	1.  LinkedBlockingQueue继承于AbstractQueue，它本质上是一个FIFO(先进先出)的队列。
+	2.  LinkedBlockingQueue实现了BlockingQueue接口，它支持多线程并发。当多线程竞争同一个资源时，某线程获取到该资源之后，其它线程需要阻塞等待。
+	3.  LinkedBlockingQueue是通过单链表实现的。putLock是插入锁，takeLock是取出锁；notEmpty是“非空条件”，notFull是“未满条件”。通过它们对链表进行并发控制。LinkedBlockingQueue在实现“多线程对竞争资源的互斥访问”时，对于“插入”和“取出(删除)”操作分别使用了不同的锁。对于插入操作，通过“插入锁putLock”进行同步；对于取出操作，通过“取出锁takeLock”进行同步。此外，插入锁putLock和“非满条件notFull”相关联，取出锁takeLock和“非空条件notEmpty”相关联。通过notFull和notEmpty更细腻的控制锁。
 
+##### LinkedBlockingDeque
+* LinkedBlockingDeque是双向链表实现的双向并发阻塞队列。该阻塞队列同时支持FIFO和FILO两种操作方式，即可以从队列的头和尾同时操作(插入/删除)；并且，该阻塞队列是支持线程安全。此外，LinkedBlockingDeque还是可选容量的(防止过度膨胀)，即可以指定队列的容量。如果不指定，默认容量大小等于Integer.MAX_VALUE。
+* 原理及数据结构
+	1. LinkedBlockingDeque继承于AbstractQueue，它本质上是一个支持FIFO和FILO的双向的队列。
+	2. LinkedBlockingDeque实现了BlockingDeque接口，它支持多线程并发。当多线程竞争同一个资源时，某线程获取到该资源之后，其它线程需要阻塞等待。
+	3. LinkedBlockingDeque是通过双向链表实现的。
+	4. lock是控制对LinkedBlockingDeque的互斥锁，当多个线程竞争同时访问LinkedBlockingDeque时，某线程获取到了互斥锁lock，其它线程则需要阻塞等待，直到该线程释放lock，其它线程才有机会获取lock从而获取cpu执行权。
+	5. notEmpty和notFull分别是“非空条件”和“未满条件”。通过它们能够更加细腻进行并发控制。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+##### ConcurrentLinkedQueue
+* ConcurrentLinkedQueue是线程安全的队列,它是一个基于链接节点的无界线程安全队列，按照 FIFO（先进先出）原则对元素进行排序。队列元素中不可以放置null元素（内部实现的特殊节点除外）。
+* 原理和数据结构
+	1. ConcurrentLinkedQueue继承于AbstractQueue。
+	2. ConcurrentLinkedQueue内部是通过链表来实现的。它同时包含链表的头节点head和尾节点tail。
+	3. ConcurrentLinkedQueue的链表Node中的next的类型是volatile，而且链表数据item的类型也是volatile。
 
 ##### forkjoin
 * 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
@@ -178,15 +218,23 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ![工厂方法模式](./designpattern/factory_method.png)
 * 工厂方法模式的主要功能是让父类在不知道具体实现的情况下，完成自身的功能调用而具体的实现延迟到子类来实现。
 * 工厂方法模式的本质：延迟到子类来选择实现。
+* JDK
+	* java.util.Calendar
+	* java.util.ResourceBundle
+	* java.text.NumberFormat
 
 ##### 抽象工厂模式
 * 抽象工厂模式提供一个创建一系列相关或者相互依赖对象的接口，而无需指定它们具体的类。
 ![抽象工厂模式](./designpattern/abstract_factory.png)
 * 抽象工厂模式的核心：选择产品簇的实现
-
+* JDK
+	* javax.xml.parsers.DocumentBuilderFactory
+	* javax.xml.transform.TransformerFactory
+	* javax.xml.xpath.XPathFactory
 
 ##### 单例模式
 * 单例模式保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+![单例模式](./designpattern/singleton.png)
 * 创建单例模式的方法
 	1. 懒汉式
 	2. 饿汉式
@@ -196,17 +244,25 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 	6. 双重校验锁
 	7. 枚举类型
 * 单例模式的本质：控制实例数目
+* JDK
+	* java.lang.Runtime#getRuntime()
+	* java.lang.System#getSecurityManager()
 
 ##### 生成器模式
 * 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 * ![生成器模式](./designpattern/build.png)
 * 生成器模式的本质：分离整体构建算法和部件构造。
+* JDK
+	* java.lang.StringBuilder
+	* java.lang.StringBuffer
+	* java.nio.ByteBuffer
 
 ##### 原型模式
 * 用原型实例指定创建对象的种类，并通过拷贝这些原型创建新的对象。
 ![原因模式](./designpattern/prototype.png)
 * 原型模式的本质：克隆生成对象
-
+* JDK
+	* java.lang.Object#clone()
 
 
 #### 行为型
@@ -219,11 +275,20 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 * 定义一系列算法，把他们一个个封装起来，并且使它们可相互替换。策略模式使得算法可独立于使用它的客户而变化。
 ![策略模式](./designpattern/strategy.png)
 * 策略模式的本质：分离算法，选择实现
+* JDK
+	* java.util.Comparator#compare()
+	* javax.servlet.http.HttpServlet
+	* javax.servlet.Filter#doFilter()
 
 ##### 模板设计模式
 * 模板方法定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使的子类可以不改变一个算法的结构即可重新定义该算法的某些特定步骤。
 ![模板方法模式](./designpattern/template_method.png)
 * 模板方法模式的本质：固定算法骨架
+* JDK
+	* java.util.Collections#sort() （也可以看做策略模式？）
+	* java.io.InputStream#skip() （？？？？？）
+	* java.io.InputStream#read() （？？？？？）
+	* java.util.AbstractList#indexOf() 
 
 ##### 责任链模式
 * 使多个对象都有机会处理请求，从而避免请求的发送者和请求者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，知道有一个对象处理它为止。
@@ -318,7 +383,7 @@ ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 ### ...
 熟悉分布式、缓存、消息、搜索等机制，有分布式系统、集群架构设计和使用经验
 
-消息中间件 搜索引擎 分布式数据库
+消息中间件 搜索引擎 分布式数据库 
 
 JIT即时编译器
 
