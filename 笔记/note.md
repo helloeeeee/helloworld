@@ -224,7 +224,7 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 * ForkJoinPool 实现了工作窃取算法来提高 CPU 的利用率。每个线程都维护了一个双端队列，用来存储需要执行的任务。工作窃取算法允许空闲的线程从其它线程的双端队列中窃取一个任务来执行。窃取的任务必须是最晚的任务，避免和队列所属线程发生竞争。
 
 ##### java内存模型
-![java内存模型](./pics/ram_model.png)
+![java内存模型](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/pics/ram_model.png?raw=true)
 
 >[内存模型三大特性](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%B9%B6%E5%8F%91.md#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7)
 
@@ -330,7 +330,7 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 > [管道流（PipedOutputStream和PipedInputStream）](https://www.cnblogs.com/skywang12345/p/io_04.html)
 
 * io类图
-![io类图](./pics/stream_class.png)
+![io类图](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/pics/stream_class.png?raw=true)
 #### nio
 > [nio基础](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20IO.md#%E4%B8%83nio)
 
@@ -473,11 +473,11 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 * 简单工厂模式提供一个对象实例的功能，而无须关心其具体的实现。被创建的实例可以是接口，抽象类，也可以是具体的类。
 * 简单工厂模式的核心是：选择实现
 
-![简单工厂](./designpattern/simple_factory.png)
+![简单工厂](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/simple_factory.png?raw=true)
 
 ##### 工厂方法模式
 * 工厂方法模式定义一个用于创建对象的接口，让子类决定实例化哪一个类，Factory Method使一个类的实例化延迟到其子类。
-![工厂方法模式](./designpattern/factory_method.png)
+![工厂方法模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/factory_method.png?raw=true)
 * 工厂方法模式的主要功能是让父类在不知道具体实现的情况下，完成自身的功能调用而具体的实现延迟到子类来实现。
 * 工厂方法模式的本质：延迟到子类来选择实现。
 * JDK
@@ -487,7 +487,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 抽象工厂模式
 * 抽象工厂模式提供一个创建一系列相关或者相互依赖对象的接口，而无需指定它们具体的类。
-![抽象工厂模式](./designpattern/abstract_factory.png)
+![抽象工厂模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/abstract_factory.png?raw=true)
 * 抽象工厂模式的核心：选择产品簇的实现
 * JDK
 	* javax.xml.parsers.DocumentBuilderFactory
@@ -496,7 +496,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 单例模式
 * 单例模式保证一个类仅有一个实例，并提供一个访问它的全局访问点。
-![单例模式](./designpattern/singleton.png)
+![单例模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/singleton.png?raw=true)
 * 创建单例模式的方法
 	1. 懒汉式
 	2. 饿汉式
@@ -512,7 +512,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 生成器模式
 * 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
-* ![生成器模式](./designpattern/build.png)
+* ![生成器模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/build.png?raw=true)
 * 生成器模式的本质：分离整体构建算法和部件构造。
 * JDK
 	* java.lang.StringBuilder
@@ -521,7 +521,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 原型模式
 * 用原型实例指定创建对象的种类，并通过拷贝这些原型创建新的对象。
-![原因模式](./designpattern/prototype.png)
+![原因模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/prototype.png?raw=true)
 * 原型模式的本质：克隆生成对象
 * JDK
 	* java.lang.Object#clone()
@@ -530,12 +530,12 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 #### 行为型
 ##### 状态模式
 * 状态设计模式允许一个对象在其内部状态改变时改变它的行为。对象看起来似乎修改了它的类。
-![状态模式](./designpattern/state.png)
+![状态模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/state.png?raw=true)
 * 状态模式的本质：根据状态来分离和选择行为。
 
 ##### 策略模式
 * 定义一系列算法，把他们一个个封装起来，并且使它们可相互替换。策略模式使得算法可独立于使用它的客户而变化。
-![策略模式](./designpattern/strategy.png)
+![策略模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/strategy.png?raw=true)
 * 策略模式的本质：分离算法，选择实现
 * JDK
 	* java.util.Comparator#compare()
@@ -544,7 +544,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 模板设计模式
 * 模板方法定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使的子类可以不改变一个算法的结构即可重新定义该算法的某些特定步骤。
-![模板方法模式](./designpattern/template_method.png)
+![模板方法模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/template_method.png?raw=true)
 * 模板方法模式的本质：固定算法骨架
 * JDK
 	* java.util.Collections#sort() （也可以看做策略模式？）
@@ -556,7 +556,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 责任链模式
 * 使多个对象都有机会处理请求，从而避免请求的发送者和请求者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，知道有一个对象处理它为止。
-![责任链模式](./designpattern/chain_of_responsibility.png)
+![责任链模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/chain_of_responsibility.png?raw=true)
 * 责任链模式的本质：分离职责，动态组合
 * JDK
 	* java.servlet.Filter#doFilter()
@@ -564,7 +564,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 中介者模式
 * 用一个中介对象来封装一系列的对象交互。中介者使得各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立第改变他们之间的交互。
-* ![中介者模式](./designpattern/mediator.png)
+* ![中介者模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/mediator.png?raw=true)
 * 中介者模式的本质：封装交互
 * JDK
 	* All scheduleXXX() methods of java.util.Timer
@@ -573,7 +573,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 	
 ##### 观察者模式
 * 定义对象间的一种一对多的依赖关系。当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。
-* ![观察者模式](./designpattern/observer.png)
+* ![观察者模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/observer.png?raw=true)
 * 观察者模式的本质：触发联动
 * JDK
 	* java.util.Observer
@@ -583,7 +583,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 命令模式
 * 命令模式将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求或记录请求日志，以及支持可撤销的操作。
-* ![命令模式](./designpattern/command.png)
+* ![命令模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/command.png?raw=true)
 * 命令模式的本质：封装请求
 * JDK
 	* java.lang.Runnable
@@ -593,7 +593,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 迭代器模式
 * 提供一种方法顺序访问一个聚合对象中的各个元素，而又不需暴露该对象的内部表示
-![迭代器模式](./designpattern/iterator.png)
+![迭代器模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/iterator.png?raw=true)
 * 迭代器模式的本质：控制访问聚合对象中的元素
 * JDK
 	* java.util.Iterator
@@ -601,26 +601,26 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 备忘录模式
 * 在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态。这样以后就就可将对象恢复到原先保存的状态。
-![备忘录模式](./designpattern/memento.png)
+![备忘录模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/memento.png?raw=true)
 * 备忘录模式的本质：保存和恢复内部状态。
 * JDK:
 	* java.io.Serializable 
 
 ##### 访问者模式
 * 访问者模式表示一个作用与某对象结构中的各元素的操作。使你可以在不改变元素的类的前提下定义作用于这些元素的新操作。
-![访问者模式](./designpattern/visit.png)
+![访问者模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/visit.png?raw=true)
 * 访问者模式的本质：回调实现
 
 #### 结构型
 ##### 外观设计模式
 * 外观模式为子系统中的一组接口提供一个一致的界面，Facade模式定义了一个高层接口，这个接口使的这一子系统更加容易使用。
-![外观模式](./designpattern/facade.png)
+![外观模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/facade.png?raw=true)
 * 外观模式的本质：封装交互，简化调用
 * 设计原则：最少知识原则。
 
 ##### 适配器模式
 * 将一个类的接口转换成客户希望的另外一个接口。适配器模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
-![适配器模式](./designpattern/adapter.png)
+![适配器模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/adapter.png?raw=true)
 * 适配器模式本质：转换匹配，复用功能
 * JDK
 	* java.util.Arrays#asList() 
@@ -628,7 +628,7 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 享元设计模式
 * 享元模式运用共享技术有效地支持大量细粒度的对象
-![享元模式](./designpattern/flyweight.png)
+![享元模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/flyweight.png?raw=true)
 * 享元对象的本质：分离与共享。分离的是对象状态中变的部分，共享的是对象中不变的部分。
 * JDK
 	* java.lang.Integer#valueOf(int)
@@ -637,23 +637,23 @@ Beanfactory 和 Factory bean，其中 BeanFactory 指的是 IOC 容器的编程�
 
 ##### 装饰模式
 * 动态地给一个对象添加一些额外的职责。就增加功能来说，装饰模式比生成子类更为灵活。
-![装饰模式](./designpattern/decorator.png)
+![装饰模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/decorator.png?raw=true)
 * 装饰模式的核心：动态组合
 * 设计原则：类应该对扩展开放，对修改关闭：也就是添加新功能时不需要修改代码
 
 ##### 代理模式
 * 代理模式为其他对象提供一种代理以控制对这个对象的访问。
-![代理模式](./designpattern/proxy.png)
+![代理模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/proxy.png?raw=true)
 * 代理模式的本质：控制对象访问。
 
 ##### 组合模式
 * 将对象组合成树型结构以表示“部分-整体”的层次结构。组合模式使的用户对单个对象和组合对象的使用具有一致性。
-![组合模式](./designpattern/composite.png)
+![组合模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/composite.png?raw=true)
 * 组合对象的本质：统一叶子对象和组合对象
 
 ##### 桥接模式
 * 将抽象部分与它的实现部分分离，使它们都可以独立地变化。
-![桥接模式](./designpattern/bridge.png)
+![桥接模式](https://github.com/helloeeeee/helloworld/blob/master/%E7%AC%94%E8%AE%B0/designpattern/bridge.png?raw=true)
 * 桥接模式的本质：分离抽象和实现
 
 ### 项目
